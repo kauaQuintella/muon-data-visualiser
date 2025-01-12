@@ -18,9 +18,10 @@ if __name__ == '__main__':
 
     # Set de dados em dashboard e sua criação
     app = dashboard.mainDash(data)
+    server = app.server
 
     # Execução
-    app.run_server(debug=True)  
+    app.run_server(debug=True)
 
 
 """
