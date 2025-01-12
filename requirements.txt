@@ -1,4 +1,4 @@
 dash==2.18.0
 gunicorn
 pandas
-tkinter
+tkinter=8.6
