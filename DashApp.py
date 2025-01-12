@@ -9,7 +9,7 @@ class Dashboard:
         pio.templates.default = "plotly_dark"
         stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
         app = dash.Dash(__name__, external_stylesheets=stylesheets)
-
+        server = app.server
         
         lenEvents = len(data.acqTimeGreg)
         listQntEvents = [[1] for i in range(lenEvents)]

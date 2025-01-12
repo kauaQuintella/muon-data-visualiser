@@ -1,7 +1,4 @@
 from datetime import datetime, timedelta
-#from tkinter import filedialog, messagebox
-from Crud import Crud
-import sys, os
 
 class ExperimentData:
 
@@ -28,52 +25,30 @@ class ExperimentData:
         return date    
 
     def processData (self):
-        
-        # ENCAPSULAR LÓGICA DE ADD ARQUIVO EM UM PROCEDIMENTO
-        fileExtension = ""
-        filepath = "."
-        while (fileExtension != ".lbsl" and filepath!=""):
-            #janela para pegar arquivo
-            filepath = "data\dataEDT.lbsl"
-            self.filePath = filepath
-            fileName, fileExtension = os.path.splitext(filepath)
+    
+        filepath = "data\dataEDT.lbsl"
 
-            if (fileExtension != ".lbsl" and filepath!=""):
-                sys.exit()
-
-        #abertura de arquivo
-        if (filepath!=""):
-            with open(filepath, 'r') as file:
-                # Ignorar a primeira linha
-                next(file)
-                for line in file:
+        with open(filepath, 'r') as file:
+            # Ignorar a primeira linha
+            next(file)
+            for line in file:
+                
+                # Separar os valores na linha por espaço ou tabulação
+                values = line.split()
+                
+                # Adicionar os valores nas listas apropriadas
+                if (values [0].find(',') > -1):
+                    change = values [0]
+                    values[0] = change.replace(",", ".")
                     
-                    # Separar os valores na linha por espaço ou tabulação
-                    values = line.split()
-                    
-                    # Adicionar os valores nas listas apropriadas
-                    if (values [0].find(',') > -1):
-                        change = values [0]
-                        values[0] = change.replace(",", ".")
-                        
 
-                    values[0] = float(values[0]) + 2451545 # CONVERSÃO PARA DATA REAL, ALTERAÇÃO ESPECÍFICA DO PROGRAMA
-                    self.acqTimeJul.append(values[0])
-                    self.negWidht.append(float(values[1]))
-                    self.fallTime.append(float(values[2]))
-                    self.riseTime.append(float(values[3]))
-                    self.pkPk.append(float(values[4]))
+                values[0] = float(values[0]) + 2451545 # CONVERSÃO PARA DATA REAL, ALTERAÇÃO ESPECÍFICA DO PROGRAMA
+                self.acqTimeJul.append(values[0])
+                self.negWidht.append(float(values[1]))
+                self.fallTime.append(float(values[2]))
+                self.riseTime.append(float(values[3]))
+                self.pkPk.append(float(values[4]))
 
-                    
-                    gregorianDate = self.julianToGregorian(float(values[0]))
-                    self.acqTimeGreg.append(gregorianDate)
-
-        else: #handling exceptions NO NULL FILES
-            sys.exit()
-
-
-class SettingsData:
-        
-        def __init__ (self, crud):
-            crud.createSettings()
-            self.settings = crud.loadSettings()
+                
+                gregorianDate = self.julianToGregorian(float(values[0]))
+                self.acqTimeGreg.append(gregorianDate)
