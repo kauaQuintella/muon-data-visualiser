@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from tkinter import filedialog, messagebox
+#from tkinter import filedialog, messagebox
 from Crud import Crud
 import sys, os
 
@@ -34,15 +34,12 @@ class ExperimentData:
         filepath = "."
         while (fileExtension != ".lbsl" and filepath!=""):
             #janela para pegar arquivo
-            filepath = filedialog.askopenfilename(initialdir="C:\\Users\\kauxb\\OneDrive\\Documents\\GitHub\\muon-data-visualiser",
-                                                title="Open file",
-                                                filetypes= (("LABENSOL Files","*.lbsl"),
-                                                ("All Files","*.*")))
+            filepath = "data\dataEDT.lbsl"
             self.filePath = filepath
             fileName, fileExtension = os.path.splitext(filepath)
 
             if (fileExtension != ".lbsl" and filepath!=""):
-                messagebox.showerror(title="Invalid file!", message="Open a valid file bro >:(")
+                sys.exit()
 
         #abertura de arquivo
         if (filepath!=""):
