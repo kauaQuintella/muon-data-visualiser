@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import requests
 
 class ExperimentData:
 
@@ -25,8 +26,13 @@ class ExperimentData:
         return date    
 
     def processData (self):
+
+        url = "https://drive.google.com/uc?id=1fgm_zJTyqmJ5bi1XGLnPVjLpCt_eeMjU&export=download"
+        response = requests.get(url)
+        with open("dataEDT.lbsl", "wb") as file:
+            file.write(response.content)
     
-        filepath = "data\dataEDT.lbsl"
+        filepath = "dataEDT.lbsl"
 
         with open(filepath, 'r') as file:
             # Ignorar a primeira linha
