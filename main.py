@@ -1,37 +1,21 @@
-#python -m pip install --proxy="http://proxy.uefs.br:3128" -U matplotlib julian / python -m pip install --proxy="http://proxy.uefs.br:3128" -upgrade pip
-
 from Data import ExperimentData
-from DashApp import Dashboard
-from dash import dash, html, dcc
+from dash import dash, html, dcc, Input, Output, State
 import plotly.express as px
 import plotly.io as pio
 import pandas as pd
-#from Crud import Crud
-#import matplotlib.pyplot as plt
-#import numpy as np
 
-# Criando objetos
-data = ExperimentData()
-#settings = SettingsData(crud)
-dashboard = Dashboard()
 
-# Processamento de dados de arquivo LABENSOL (.lbsl)
-url = "https://drive.google.com/file/d/1lQNHwqzCv706MYDySggn9Vn6J1wiA-om/view?usp=drive_link"
-confirm = data.processData(url)
+def dashFigs (data):
+    """
+    Função para crianção de figuras Dash. Houve-se a modularização para reuso no projeto.
 
-if(not(confirm)):
-    print("Arquivo errado amigão!")
+    :param data: ExperimentData
 
-else:
-
-    pio.templates.default = "plotly_dark"
-    stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-    app = dash.Dash(__name__, external_stylesheets=stylesheets)
-    server = app.server
-
-    lenEvents = len(data.acqTimeGreg)
-    listQntEvents = [[1] for i in range(lenEvents)]
-
+    :return figPkPk: Figure
+    :return figNegWidht: Figure
+    :return figScatter: Figure
+    :return figContagem_x_tempo: Figure
+    """
 
     # DATAFRAMES
     histogramaPkPk = pd.DataFrame ({
@@ -51,8 +35,10 @@ else:
 
     contagem_x_tempo = pd.DataFrame({
         "Data": data.acqTimeGreg,
-        "Eventos": listQntEvents
+        "Eventos": data.listQntEvents
         })
+    
+
     contagem_x_tempo["Intervalo"] = contagem_x_tempo["Data"].dt.floor("9min")  # Ajustar para 1 hora
     contagem_x_tempo_agrupado = contagem_x_tempo.groupby("Intervalo").size().reset_index(name="Contagem")
 
@@ -91,47 +77,107 @@ else:
         y="Contagem"
     )
 
-    # App Layout
-    app.layout = html.Div(id="div1",
+    return (figPkPk, figNegWidht, figScatter,figContagem_x_tempo)
+
+#--- INICIO CÓDIGO ---#
+
+# Criando objetos
+data = ExperimentData()
+
+# Processamento de dados de arquivo LABENSOL (.lbsl)
+url = "https://drive.google.com/file/d/1lQNHwqzCv706MYDySggn9Vn6J1wiA-om/view?usp=drive_link" #dado de experimento
+confirm = data.processData(url)
+
+if(not(confirm)):
+    print("Arquivo errado amigão!")
+
+else:
+
+    # Configuração e criação de Dash
+    pio.templates.default = "plotly_dark"
+    stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+    app = dash.Dash(__name__, external_stylesheets=stylesheets)
+    server = app.server
+
+    #Criação de figuras
+    (figPkPk, figNegWidht, figScatter,figContagem_x_tempo) = dashFigs(data)
+
+    #Criação de Layout do Dash
+    app.layout = html.Div(id="mainDiv",
         children=[
             html.H1("LABENSOL Dash", id="h1"),
             html.Div(
-    """
-    \tO Laboratório de Instrumentação Nuclear e Energia Solar (LABENSOL) desenvolveu um
-    protótipo de detector que tem como técnica de detecção a medida da radiação Cherenkov gerada
-    pela passagem das partículas na parte sensível do detector central, que é preenchido com água
-    filtrada. Esta radiação luminosa gerada é captada por fotomultiplicadores ou PMTs (do inglês
-    Photo-Multiplier Tube). Para filtrar apenas as partículas incidentes verticalmente, utilizamos um
-    par de cintiladores orgânicos acoplados em PMTs alinhados verticalmente com o detector central, o
-    qual fica situado entre os cintiladores. Esta configuração é conhecida como Telescópio de Múons,
-    pois pode ser direcionado para qualquer direção na qual se deseja medir a incidência de partículas.
-    """
+            """
+            \tO Laboratório de Instrumentação Nuclear e Energia Solar (LABENSOL) desenvolveu um
+            protótipo de detector que tem como técnica de detecção a medida da radiação Cherenkov gerada
+            pela passagem das partículas na parte sensível do detector central, que é preenchido com água
+            filtrada. Esta radiação luminosa gerada é captada por fotomultiplicadores ou PMTs (do inglês
+            Photo-Multiplier Tube). Para filtrar apenas as partículas incidentes verticalmente, utilizamos um
+            par de cintiladores orgânicos acoplados em PMTs alinhados verticalmente com o detector central, o
+            qual fica situado entre os cintiladores. Esta configuração é conhecida como Telescópio de Múons,
+            pois pode ser direcionado para qualquer direção na qual se deseja medir a incidência de partículas.
+
+            """
             ),
+
+            html.Div(dcc.Input(id='input-on-submit', type='text')),
+            html.Button('Submit', id='submit-val', n_clicks=0),
+            html.Div(id='container-button-basic',
+                    children='Enter a value and press submit'),
+
             dcc.Graph(figure=figPkPk, id="graph1"),
             dcc.Graph(figure=figNegWidht, id="graph2"),
             dcc.Graph(figure=figScatter, id="scatter"),
-            dcc.Graph(figure=figContagem_x_tempo, id="barFig")
+            dcc.Graph(figure=figContagem_x_tempo, id="barFig"),
+
+            dcc.Slider(
+                id ='intervaloContagemHora',
+                min = 1,
+                max = data.lenEvents,
+                value = data.lenEvents,
+                marks={str(qntEvents): str(qntEvents) for qntEvents in range(0,data.lenEvents)}
+            )
         ]
     )
 
+
+@app.callback(
+    [
+        Output('graph1', 'figure'),
+        Output('graph2', 'figure'),
+        Output('scatter', 'figure'),
+        Output('barFig', 'figure'),
+        Output('container-button-basic', 'children')
+    ],
+    Input('submit-val', 'n_clicks'),
+    State('input-on-submit', 'value'),
+    prevent_initial_call=True
+)
+def updateFile (n_clicks,value):
+    """
+    Função com callback de Dash para alterar figuras caso haja alteração de link
+
+    :param n_clicks: Any
+    :param value: Any
+
+    :return figPkPk: Figure
+    :return figNegWidht: Figure
+    :return figScatter: Figure
+    :return figContagem_x_tempo: Figure
+    """
+
+    confirm = data.processData(value)
+
+    if not confirm:
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, "Arquivo errado amigão!"
+
+    (figPkPk, figNegWidht, figScatter,figContagem_x_tempo) = dashFigs(data)
+
+    return figPkPk, figNegWidht, figScatter, figContagem_x_tempo, "Dados atualizados com sucesso!"
+
 if __name__ == '__main__':
-
-    # Set de dados em dashboard e sua criação
-    #app = dashboard.mainDash(data)
-
     # Execução
     app.run(debug=True)#app.run_server!!!
-
-
-"""
-time = np.linspace(0, 5, 10)
-
-#x = [1,2,3,5]
-y = np.cos(time)
-#plt.plot(time,y)
-plt.subplots(nrows = 2, ncols = 2)
-plt.show()
-"""
 
     
     
