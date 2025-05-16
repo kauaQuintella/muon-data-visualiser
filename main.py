@@ -85,7 +85,7 @@ def dashFigs (data):
 data = ExperimentData()
 
 # Processamento de dados de arquivo LABENSOL (.lbsl)
-url = "https://drive.google.com/file/d/1lQNHwqzCv706MYDySggn9Vn6J1wiA-om/view?usp=drive_link" #dado de experimento
+url = "https://drive.google.com/file/d/1lQNHwqzCv706MYDySggn9Vn6J1wiA-om/view?usp=drive_link" #dado de teste do experimento
 confirm = data.processData(url)
 
 if(not(confirm)):
@@ -117,6 +117,7 @@ else:
             qual fica situado entre os cintiladores. Esta configuração é conhecida como Telescópio de Múons,
             pois pode ser direcionado para qualquer direção na qual se deseja medir a incidência de partículas.
 
+            Feito por: Kauã de Quintella Paes Oliveira
             """
             ),
 
@@ -129,7 +130,8 @@ else:
             dcc.Graph(figure=figNegWidht, id="graph2"),
             dcc.Graph(figure=figScatter, id="scatter"),
             dcc.Graph(figure=figContagem_x_tempo, id="barFig"),
-
+            
+            """ TESTANDO
             dcc.Slider(
                 id ='intervaloContagemHora',
                 min = 1,
@@ -137,6 +139,7 @@ else:
                 value = data.lenEvents,
                 marks={str(qntEvents): str(qntEvents) for qntEvents in range(0,data.lenEvents)}
             )
+            """
         ]
     )
 
