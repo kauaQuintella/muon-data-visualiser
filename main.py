@@ -117,29 +117,20 @@ else:
             qual fica situado entre os cintiladores. Esta configuração é conhecida como Telescópio de Múons,
             pois pode ser direcionado para qualquer direção na qual se deseja medir a incidência de partículas.
 
-            Feito por: Kauã de Quintella Paes Oliveira
+            \n\nFeito por: Kauã de Quintella Paes Oliveira
             """
             ),
 
             html.Div(dcc.Input(id='input-on-submit', type='text')),
             html.Button('Submit', id='submit-val', n_clicks=0),
             html.Div(id='container-button-basic',
-                    children='Enter a value and press submit'),
+                    children='Copie e cole o link do .lbsl do experimento'),
 
             dcc.Graph(figure=figPkPk, id="graph1"),
             dcc.Graph(figure=figNegWidht, id="graph2"),
             dcc.Graph(figure=figScatter, id="scatter"),
             dcc.Graph(figure=figContagem_x_tempo, id="barFig"),
-            
-            """ TESTANDO
-            dcc.Slider(
-                id ='intervaloContagemHora',
-                min = 1,
-                max = data.lenEvents,
-                value = data.lenEvents,
-                marks={str(qntEvents): str(qntEvents) for qntEvents in range(0,data.lenEvents)}
-            )
-            """
+
         ]
     )
 
